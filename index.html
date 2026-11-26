@@ -910,6 +910,10 @@ body[data-scr=form] #bgm{display:none}
 #form[data-step="1"] .back,#form[data-step="1"] .pill{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.8);color:#fff;font-weight:800;opacity:1}
 #form[data-step="1"] header.bar *{-webkit-font-smoothing:antialiased;text-shadow:none}
 
+/* 홈 화면 앱: 맨 위 막대를 상태바 번짐 영역 아래로 조금 더 내림 */
+html.sa #form header.bar,html.sa #result header.bar{padding-top:calc(.7rem + 20px)!important}
+html.sa #form header.bar{min-height:calc(3.6rem + 20px)}
+
 /* 홈 화면 앱에서 맨 위가 상태바에 가려 흐릿해지지 않게 */
 #stage{top:var(--sat,env(safe-area-inset-top,0px))}
 
@@ -2222,7 +2226,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795668312'; let updPending=false;
+const BUILD='1795668847'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2596,7 +2600,7 @@ function bind(){
 (function(){ try{ const pr=document.createElement('div'); pr.style.cssText='position:fixed;top:0;left:0;padding-top:env(safe-area-inset-top,0px);visibility:hidden'; document.body.appendChild(pr);
   const v=parseFloat(getComputedStyle(pr).paddingTop)||0; pr.remove();
   const sa=!!(navigator.standalone||(matchMedia&&matchMedia('(display-mode: standalone)').matches));
-  if(sa&&v<10) document.documentElement.style.setProperty('--sat','24px'); }catch(e){} })();
+  if(sa&&v<10) document.documentElement.style.setProperty('--sat','24px'); if(sa) document.documentElement.classList.add('sa'); }catch(e){} })();
 /* ============ 시작 ============ */
 (function(){
   buildExamChips(); buildScoreCards(); buildRadar(); buildInfo(); bind(); renderScores(); renderBoxes(); renderNotice();
