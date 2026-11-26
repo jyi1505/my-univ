@@ -681,13 +681,13 @@ body[data-scr=form] #bgm{display:none}
 #form[data-step="1"] .notice b{color:#0b1a3a}
 
 /* 테마가 쫙 바뀌는 와이프 (대학 로고·상징·슬로건 소개 화면) */
-.wipe,.wedge{position:absolute;top:0;bottom:0;left:0;width:100%;z-index:80;pointer-events:none;-webkit-transition:-webkit-clip-path .42s cubic-bezier(.65,0,.25,1);transition:clip-path .42s cubic-bezier(.65,0,.25,1),-webkit-clip-path .42s cubic-bezier(.65,0,.25,1)}
+.wipe,.wedge{position:absolute;top:0;bottom:0;left:0;width:100%;z-index:80;pointer-events:none;-webkit-transition:-webkit-clip-path .34s cubic-bezier(.65,0,.25,1);transition:clip-path .34s cubic-bezier(.65,0,.25,1),-webkit-clip-path .34s cubic-bezier(.65,0,.25,1)}
 .wipe{overflow:hidden;
   background:radial-gradient(52rem 34rem at 50% 44%,color-mix(in srgb,var(--t1) 90%,#fff 0%),transparent 72%),radial-gradient(40rem 26rem at 8% 100%,color-mix(in srgb,var(--t3) 30%,transparent),transparent 70%),linear-gradient(160deg,color-mix(in srgb,var(--t1) 50%,var(--t2)),var(--t2) 85%);
   -webkit-clip-path:polygon(112% 0,250% 0,243% 100%,105% 100%);clip-path:polygon(112% 0,250% 0,243% 100%,105% 100%)}
 .wipe::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(112deg,rgba(255,255,255,.07) 0 .12rem,transparent .12rem 1.1rem);pointer-events:none}
 .wipe.in{-webkit-clip-path:polygon(-8% 0,250% 0,243% 100%,-15% 100%);clip-path:polygon(-8% 0,250% 0,243% 100%,-15% 100%)}
-.wipe.out{-webkit-clip-path:polygon(-258% 0,-1% 0,-8% 100%,-265% 100%);clip-path:polygon(-258% 0,-1% 0,-8% 100%,-265% 100%);transition:clip-path .45s cubic-bezier(.6,0,.3,1),-webkit-clip-path .45s cubic-bezier(.6,0,.3,1)}
+.wipe.out{-webkit-clip-path:polygon(-258% 0,-1% 0,-8% 100%,-265% 100%);clip-path:polygon(-258% 0,-1% 0,-8% 100%,-265% 100%);transition:clip-path .36s cubic-bezier(.6,0,.3,1),-webkit-clip-path .36s cubic-bezier(.6,0,.3,1)}
 .wedge{z-index:81;background:linear-gradient(180deg,rgba(255,255,255,.35),#fff 50%,rgba(255,255,255,.35));-webkit-clip-path:polygon(112% 0,116% 0,109% 100%,105% 100%);clip-path:polygon(112% 0,116% 0,109% 100%,105% 100%)}
 .wedge.g{z-index:79;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--t3) 75%,transparent) 50%,transparent);-webkit-clip-path:polygon(112% 0,126% 0,119% 100%,105% 100%);clip-path:polygon(112% 0,126% 0,119% 100%,105% 100%)}
 .wedge.in{-webkit-clip-path:polygon(-8% 0,-4% 0,-11% 100%,-15% 100%);clip-path:polygon(-8% 0,-4% 0,-11% 100%,-15% 100%)}
@@ -706,6 +706,15 @@ body[data-scr=form] #bgm{display:none}
 .wipe .aura{animation-duration:2s}
 .wipe .bslo .kd{opacity:1;animation:none}
 .wipe .bslo .ln{font-size:clamp(1.3rem,2.3vw,2rem)}
+/* 전환 성능: 무거운 효과 줄이기 */
+.wipe,.wedge{will-change:clip-path;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.wipe::before{display:none}
+.wipe .wc{will-change:opacity;transition:opacity .14s}
+.wipe .aura{animation:none;-webkit-mask:none;mask:none;opacity:.16}
+.wipe .embers i:nth-child(n+7){display:none}
+.wipe .bdg{filter:drop-shadow(0 0 1.1rem var(--t1))}
+.wipe .brandlogo .bdg{animation-duration:.4s}
+.wipe .mascot{animation-duration:.35s}
 @keyframes wup{from{opacity:0;transform:translateY(1.1rem)}to{opacity:1;transform:none}}
 /* ===== 학교 홈페이지 v2 : 밋밋함 탈출 ===== */
 #form[data-step="1"]{background:linear-gradient(180deg,#d9e5f6 0%,#e9f0fa 38%,#f3f1ea 72%,#f6ecda 100%);color:#12203f}
@@ -887,11 +896,19 @@ body[data-scr=form] #bgm{display:none}
 #result .pri{font-size:.8rem;padding:.12rem .65rem;border-radius:999px}
 
 /* ===== 시작화면 : 4:3 아이패드에서도 잘리지 않게 (가로 폭 기준으로 크기 제한) ===== */
-.lg.snu,.lg.yon,.lg.kaist{height:clamp(6rem,min(28vh,16vw),21rem)}
-.lg.kor,.lg.post{height:clamp(7rem,min(34vh,19vw),24rem)}
-.ititle{font-size:clamp(2.6rem,min(13.5vh,7vw),9.4rem)}
+.lg.snu,.lg.yon,.lg.kaist{height:clamp(6rem,min(31vh,18vw),23rem)}
+.lg.kor,.lg.post{height:clamp(7rem,min(34vh,17.5vw),24rem)}
+.ititle{font-size:clamp(2.6rem,min(15vh,8.4vw),10.4rem)}
 .icol.R{transform:translateX(-1.5rem)}
 .icol.L{transform:none}
+
+/* ===== 점수 입력 맨 위(이전으로·모의고사 선택) 선명하게 ===== */
+#form[data-step="1"] header.bar{background:linear-gradient(90deg,#0b1642,#18286a 60%,#222a72);-webkit-backdrop-filter:none;backdrop-filter:none;opacity:1;filter:none;border-bottom:1px solid rgba(255,255,255,.18)}
+#form[data-step="1"] .eg>small{color:#fff;opacity:1;font-size:.82rem;font-weight:800;letter-spacing:.04em;text-shadow:none}
+#form[data-step="1"] .chip{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.75);color:#fff;font-weight:800;font-size:.98rem;opacity:1;filter:none}
+#form[data-step="1"] .chip.on{background:#fff;border-color:#fff;color:#0b1642;box-shadow:0 0 0 .2rem #ffd978}
+#form[data-step="1"] .back,#form[data-step="1"] .pill{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.8);color:#fff;font-weight:800;opacity:1}
+#form[data-step="1"] header.bar *{-webkit-font-smoothing:antialiased;text-shadow:none}
 
 /* 홈 화면 앱에서 맨 위가 상태바에 가려 흐릿해지지 않게 */
 #stage{top:var(--sat,env(safe-area-inset-top,0px))}
@@ -963,7 +980,7 @@ body[data-scr=form] #bgm{display:none}
     </div>
     <div class="flash fb"></div><div class="flash fr"></div><div class="flash fw"></div>
     <div class="team">Team 09</div>
-    <div class="ifoot">공식 앱이 아닌 참고용 도구예요</div>
+    
   </section>
 
   <!-- 2·3. 점수 입력 → 대학 선택 -->
@@ -2203,7 +2220,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795663118'; let updPending=false;
+const BUILD='1795666996'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2365,17 +2382,17 @@ function themeWipe(id,fn,mName,reveal){
   const vars=`--t1:${m.c[0]};--t2:${m.c[1]};--t3:${m.c[2]}`; w.style.cssText=vars;
   const e1=document.createElement('div'); e1.className='wedge g'; e1.style.cssText=vars;
   const e2=document.createElement('div'); e2.className='wedge'; e2.style.cssText=vars;
-  const all=[w,e1,e2]; all.forEach(el=>$('stage').appendChild(el)); void w.offsetWidth; all.forEach(el=>el.classList.add('in'));
-  setTimeout(()=>{
-    const art=id?wmImg(id):'';
-    let em=''; for(let i=0;i<16;i++){ const r=Math.random; em+=`<i style="left:${(r()*100).toFixed(0)}%;--sz:${(.18+r()*.3).toFixed(2)}rem;--du:${(3+r()*3).toFixed(1)}s;--dl:${(r()*1.2).toFixed(1)}s;--dx:${((r()-.5)*5).toFixed(1)}rem"></i>`; }
-    const slo=(id&&m.lines)?`<div class="bslo">${m.kind?`<span class="kd">${esc(m.kind)}</span>`:''}${m.lines.map((l,i,a)=>`<span class="ln">${esc((i===0&&m.kind?'「':'')+l+(i===a.length-1&&m.kind?'」':''))}</span>`).join('')}</div>`:'';
-    w.innerHTML=`<div class="wc"><div class="embers">${em}</div><div class="brandlogo"><div class="aura"></div>${art?`<div class="mascot ${id}">${art}</div>`:''}${badge(id,'xxl',name)}</div><div class="bname">${esc(name)}</div>${id?`<div class="bsub">${esc(m.sub)}</div>`:''}${slo}</div>`;
-    void w.offsetWidth; w.classList.add('show');
-  },200);
-  setTimeout(()=>{ try{ fn(); }catch(e){ console.error(e); } },430);
-  setTimeout(()=>{ all.forEach(el=>el.classList.add('out')); if(reveal) try{ reveal(); }catch(e){ console.error(e); } },1150);
-  setTimeout(()=>{ all.forEach(el=>el.remove()); wiping=false; },1650);
+  /* 내용은 애니메이션 시작 전에 미리 만들어 두어 중간에 끊기지 않게 */
+  const art=id?wmImg(id):'';
+  let em=''; for(let i=0;i<6;i++){ const r=Math.random; em+=`<i style="left:${(r()*100).toFixed(0)}%;--sz:${(.18+r()*.3).toFixed(2)}rem;--du:${(2.6+r()*2.4).toFixed(1)}s;--dl:${(r()*1).toFixed(1)}s;--dx:${((r()-.5)*5).toFixed(1)}rem"></i>`; }
+  const slo=(id&&m.lines)?`<div class="bslo">${m.kind?`<span class="kd">${esc(m.kind)}</span>`:''}${m.lines.map((l,i,a)=>`<span class="ln">${esc((i===0&&m.kind?'「':'')+l+(i===a.length-1&&m.kind?'」':''))}</span>`).join('')}</div>`:'';
+  w.innerHTML=`<div class="wc"><div class="embers">${em}</div><div class="brandlogo"><div class="aura"></div>${art?`<div class="mascot ${id}">${art}</div>`:''}${badge(id,'xxl',name)}</div><div class="bname">${esc(name)}</div>${id?`<div class="bsub">${esc(m.sub)}</div>`:''}${slo}</div>`;
+  const all=[w,e1,e2]; all.forEach(el=>$('stage').appendChild(el)); void w.offsetWidth;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ all.forEach(el=>el.classList.add('in')); }));
+  setTimeout(()=>{ w.classList.add('show'); },170);
+  setTimeout(()=>{ try{ fn(); }catch(e){ console.error(e); } },380);
+  setTimeout(()=>{ all.forEach(el=>el.classList.add('out')); if(reveal) try{ reveal(); }catch(e){ console.error(e); } },900);
+  setTimeout(()=>{ all.forEach(el=>el.remove()); wiping=false; },1330);
 }
 function pickUniv(id){ S.univ=id; S.dept=null; S.man=false; save(); closePicker(); themeWipe(id,()=>{ setTheme(id); setStep(2); renderBoxes(); renderNotice(); $('brandYes').innerHTML=''; $('brandYes').dataset.key=''; },null,()=>{ renderBrand(true); burst(); }); }
 function pickDept(name){ S.dept=name; save(); renderBoxes(); closePicker(); }
