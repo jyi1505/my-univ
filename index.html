@@ -1041,6 +1041,28 @@ html.sa #form header.bar{min-height:calc(3.6rem + 20px)}
 .mk-conf i{position:absolute;top:-2rem;left:var(--x);width:var(--w);height:calc(var(--w)*1.7);background:var(--c);border-radius:.1rem;opacity:0;animation:confall var(--d) linear var(--l) infinite}
 @keyframes confall{0%{opacity:0;transform:translateY(0) rotate(0)}8%{opacity:1}100%{opacity:.9;transform:translateY(120vh) rotate(720deg)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.mk-cta{display:inline-flex;align-items:center;gap:.6rem;padding:.75rem 1.8rem;border-radius:999px;font-size:1.2rem;font-weight:800;letter-spacing:.01em;color:#0a1030;background:linear-gradient(135deg,#fff,color-mix(in srgb,var(--t3) 80%,#fff));box-shadow:0 0 .5rem var(--t3),0 0 2rem var(--t1);animation:ctapulse 1.9s ease-in-out infinite;position:relative;overflow:hidden}
+.mk-cta span{font-size:1.4rem}
+.mk-cta i{font-style:normal;font-size:.7rem;font-weight:800;padding:.1rem .5rem;border-radius:999px;background:#e8284f;color:#fff;letter-spacing:.06em}
+.mk-cta::after{content:"";position:absolute;top:0;bottom:0;width:30%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.85),transparent);transform:skewX(-20deg);animation:ctashine 3s ease-in-out infinite}
+.mk-cta:active{transform:scale(.96)}
+@keyframes ctapulse{0%,100%{box-shadow:0 0 .5rem var(--t3),0 0 1.4rem var(--t1);transform:scale(1)}50%{box-shadow:0 0 .8rem #fff,0 0 3rem var(--t3);transform:scale(1.05)}}
+@keyframes ctashine{0%,55%{left:-40%}100%{left:130%}}
+#mock .mk-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;pointer-events:none;padding-top:30vh}
+#mock .mk-bg .brandlogo{margin:0;width:auto}
+#mock .mk-bg .bdg.xxl{--s:min(18rem,29vh);opacity:.9}
+#mock .mk-bg .mascot{width:min(34rem,86vw);opacity:.8}
+#mock .mk-bg .brandlogo::before{display:none}
+#mock .mk-bg .aura{width:min(30rem,48vh);height:min(30rem,48vh);margin:calc(min(30rem,48vh)/-2) 0 0 calc(min(30rem,48vh)/-2);opacity:.24}
+#mock .mk-slot.glass{background:rgba(6,10,34,.34);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#mock .mk-bg .bdg.xxl{--s:min(21rem,33vh)}
+#mock .mk-head h1,#mock .mk-head p{text-shadow:0 .1rem .9rem rgba(0,0,0,.65),0 0 .3rem rgba(0,0,0,.4)}
+.mf-top.serif{font-family:var(--serif);font-weight:800;font-style:italic;letter-spacing:.03em;font-size:clamp(2.3rem,4.8vw,3.8rem);line-height:1.2;animation:none;color:#fff;text-shadow:0 0 .25rem #fff,0 0 1.1rem var(--t1),0 0 2.8rem var(--t1)}
+.mf-top .ch{display:inline-block;font-style:italic;opacity:0;animation:neon .6s ease-out forwards}
+.mf-top .sp{display:inline-block;width:.3em}
+.mf-top .em{display:block;font-style:normal;font-size:.7em;margin-bottom:.2rem;animation:pop .8s both}
+.mf-msg.serif{font-family:var(--serif);font-weight:700;font-style:italic}
 </style>
 </head>
 <body data-scr="intro">
@@ -1085,7 +1107,6 @@ html.sa #form header.bar{min-height:calc(3.6rem + 20px)}
       <div class="examsel" id="examsel"></div>
       <div class="examtag" id="examtag"></div>
       <span class="sp"></span>
-      <button class="pill hot" id="mockForm" hidden>🎯 모의지원</button>
       <button class="pill" id="infoBtn">자료 · 계산 방식</button>
     </header>
     <div class="campus-hd"><span class="wm1"><i></i>대학 어디가?</span><span class="dv"></span><h2>모의고사 성적 입력</h2><span class="sp"></span><span class="crumb">홈 &gt; 입시정보 &gt; 정시 합격예측</span></div>
@@ -1129,7 +1150,7 @@ html.sa #form header.bar{min-height:calc(3.6rem + 20px)}
       <button class="back" id="backRes">← 이전으로</button>
       <button class="back alt" id="homeRes">⌂ 처음으로</button>
       <span class="sp"></span>
-      <button class="pill hot" id="mockRes">🎯 모의지원</button>
+      <button class="mk-cta" id="mockRes"><span>🎯</span>모의지원 해보기<i>NEW</i></button>
       <button class="pill" id="infoBtn2">자료 · 계산 방식</button>
     </header>
     <div class="rbody" id="rbody"></div>
@@ -1137,6 +1158,7 @@ html.sa #form header.bar{min-height:calc(3.6rem + 20px)}
 
   <!-- 6. 모의지원 -->
   <section id="mock" class="scr" aria-label="모의지원">
+    <div class="mk-bg" id="mkBg"></div>
     <header class="bar"><button class="back" id="mkBack">← 이전으로</button><span class="sp"></span></header>
     <div class="mk-wrap" id="mkBody"></div>
   </section>
@@ -2365,7 +2387,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795678441'; let updPending=false;
+const BUILD='1795679482'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2744,21 +2766,25 @@ function bind(){
   if(sa&&v<10) document.documentElement.style.setProperty('--sat','24px'); if(sa) document.documentElement.classList.add('sa'); }catch(e){} })();
 /* ============ 모의지원 ============ */
 const GUNS=['가','나','다'];
-const MK={slots:{가:null,나:null,다:null},res:[],phase:1,pick:null,tmpU:null,choice:null,from:'result',tok:0};
+const MK={last:null,slots:{가:null,나:null,다:null},res:[],phase:1,pick:null,tmpU:null,choice:null,from:'result',tok:0};
 const mkOkGun=(d,g)=>(d[2]===g||d[2]==='-'||!d[2]);
 function mkProb(sl){ const c=compute(); if(!c.ok) return 0; const U=UBY[sl.id]; const d=U.d.find(x=>x[0]===sl.dept); if(!d) return 0; return probF(c.eff,ruralCut(U.id,d[0],d[1]).cut,c.E.stage)/100; }
 function mkDraw(p){ const pp=Math.min(.985,Math.max(.015,p)); const u=Math.min(1-1e-4,Math.max(1e-4,Math.random())); const z=Math.log(pp/(1-pp))+Math.log(u/(1-u))*.9;
   if(z>.6) return {st:'first'}; if(z>-1.6) return {st:'wait',rank:Math.max(1,Math.round(1+(.6-z)/2.2*11))}; return {st:'fail'}; }
+const mkSpl=t=>[...t].map((ch,i)=>ch===' '?'<span class="sp"></span>':`<span class="ch" style="animation-delay:${(.25+i*.08).toFixed(2)}s">${esc(ch)}</span>`).join('');
 const mkAddP=n=>Math.min(.9,Math.max(.04,.9*Math.exp(-.21*(n-1))));
-function updMk(){ const b=$('mockForm'); if(b) b.hidden=!scoresReady(); }
 function openMock(from){
   const c=compute(); if(!c.ok) return;
   MK.from=from; MK.tok++;
   if(!GUNS.some(g=>MK.slots[g])){ const t=target(); if(t&&t.id&&!S.man){ const g=GUNS.includes(t.gun)?t.gun:'가'; MK.slots[g]={id:t.id,dept:t.d}; } }
-  setTheme(null); renderMock(); go('mock');
+  const f=GUNS.map(g=>MK.slots[g]).filter(Boolean); MK.last=MK.last&&f.some(s=>s.id===MK.last)?MK.last:(f[0]?f[0].id:null);
+  setTheme(MK.last); renderMock(); go('mock');
 }
+function renderMkBg(){ const id=MK.last, el=$('mkBg'); if(el.dataset.k===String(id)) return; el.dataset.k=String(id);
+  el.innerHTML=id?`<div class="brandlogo"><div class="aura"></div>${WMS.has(id)?`<div class="mascot ${id}">${wmImg(id)}</div>`:''}${badge(id,'xxl',UBY[id].n)}</div>`:''; }
+function mkSetLast(id){ MK.last=id; setTheme(id); renderMkBg(); }
 function renderMock(){
-  const c=compute(); const n=GUNS.filter(g=>MK.slots[g]).length;
+  renderMkBg(); const c=compute(); const n=GUNS.filter(g=>MK.slots[g]).length;
   const cards=GUNS.map(g=>{ const s=MK.slots[g];
     if(!s) return `<div class="mk-slot glass empty" data-g="${g}"><span class="mk-gun">${g}군</span><div class="mk-plus">＋</div><div class="mk-hint">대학 · 학과 고르기</div></div>`;
     const U=UBY[s.id], p=mkProb(s)*100, [bn,bc]=band(p), mt=uMeta(s.id);
@@ -2828,47 +2854,45 @@ function mkFin(kind){
     let conf=''; for(let i=0;i<46;i++){ const rn=Math.random; conf+=`<i style="--x:${(rn()*100).toFixed(1)}%;--d:${(3.4+rn()*3).toFixed(1)}s;--l:${(rn()*3).toFixed(1)}s;--c:${['#ffd34d','#ff7aa8','#6fe3ff','#fff','#9dff9d'][i%5]};--w:${(.45+rn()*.5).toFixed(2)}rem"></i>`; }
     const msg=v==='first'?(cosmic?`🚀 우주상향 성공! 확률 ${f1(r.p*100)}%를 뚫고 최초합격했어요`:'최초합격으로 입학이 확정됐어요'):(cosmic?`🚀 예비 ${r.rank}번 우주상향 추가합격!`:`예비 ${r.rank}번에서 추가합격! 끝까지 기다린 보람이 있어요`);
     const lines=(m.lines&&META[id])?`<div class="bslo"><span class="ln">${esc(m.lines.join(' '))}</span></div>`:'';
-    h=`<div class="stage2 mf"><div class="mk-conf">${conf}</div><div class="mf-top">🎉 합격을 축하합니다!</div>
+    h=`<div class="stage2 mf"><div class="mk-conf">${conf}</div><div class="mf-top serif"><span class="em">🎉</span>${mkSpl('합격을 축하합니다!')}</div>
       <div class="brandlogo"><div class="aura"></div>${WMS.has(id)?`<div class="mascot ${id}">${wmImg(id)}</div>`:''}${badge(id,'xxl',r.u)}</div>
-      <div class="bname">${esc(r.u)}</div><div class="mf-msg"><b>${esc(r.dept)}</b> 합격 · <b>${esc(r.u)}</b>에 입학했습니다!</div><div class="mf-sub">${esc(msg)}</div>${lines}
+      <div class="bname">${esc(r.u)}</div><div class="mf-msg serif"><b>${esc(r.dept)}</b> 합격 · <b>${esc(r.u)}</b>에 입학했습니다!</div><div class="mf-sub">${esc(msg)}</div>${lines}
       <div class="mk-act on"><button class="go" id="mfAgain">다시 지원해 보기</button><button class="ghost" id="mfRe">재수하기</button><button class="ghost" id="mfHome">처음으로</button></div></div>`; }
   else if(kind==='fail'){ setTheme(null);
-    h=`<div class="stage2 mf"><div class="mf-emoji">🍂</div><div class="mf-top sad">이번엔 모두 불합격이에요</div><div class="mf-sub big">결과가 전부는 아니에요. 어떤 길로 가 볼까요?</div>
+    h=`<div class="stage2 mf"><div class="mf-emoji">🍂</div><div class="mf-top serif">${mkSpl('이번엔 모두 불합격이에요')}</div><div class="mf-sub big">결과가 전부는 아니에요. 어떤 길로 가 볼까요?</div>
       <div class="mf-choices"><button class="mf-ch glass" id="mfRe"><span>📚</span><b>재수하기</b><small>1년 더 도전해 볼래요</small></button><button class="mf-ch glass" id="mfPath"><span>🌱</span><b>다른 진로 찾기</b><small>새로운 길을 찾아볼래요</small></button></div>
       <div class="mk-act on"><button class="ghost" id="mfAgain">다시 지원해 보기</button><button class="ghost" id="mfHome">처음으로</button></div></div>`; }
   else if(kind==='re'){ setTheme(null);
-    h=`<div class="stage2 mf"><div class="mf-emoji">🔥</div><div class="mf-top">1년만 더, 화이팅!</div><div class="mf-msg">지금의 1년이 내년의 합격을 만들어요.<br>이번에 쌓은 경험은 절대 사라지지 않아요.<br>한 번 해 본 만큼, 내년엔 훨씬 단단해질 거예요 💪</div>
+    h=`<div class="stage2 mf"><div class="mf-emoji">🔥</div><div class="mf-top serif">${mkSpl('1년만 더, 화이팅!')}</div><div class="mf-msg">지금의 1년이 내년의 합격을 만들어요.<br>이번에 쌓은 경험은 절대 사라지지 않아요.<br>한 번 해 본 만큼, 내년엔 훨씬 단단해질 거예요 💪</div>
       <div class="mk-act on"><button class="go" id="mfAgain">다시 지원해 보기</button><button class="ghost" id="mfHome">처음으로</button></div></div>`; }
   else { setTheme(null);
-    h=`<div class="stage2 mf"><div class="mf-emoji">🌱</div><div class="mf-top">너의 새로운 선택을 응원해!</div><div class="mf-msg">입시는 여러 길 중 하나일 뿐이에요.<br>어떤 길을 가든 너의 가능성은 그대로예요.<br>네가 고른 길을 믿고 힘차게 나아가요 ✨</div>
+    h=`<div class="stage2 mf"><div class="mf-emoji">🌱</div><div class="mf-top serif">${mkSpl('너의 새로운 선택을 응원해!')}</div><div class="mf-msg">입시는 여러 길 중 하나일 뿐이에요.<br>어떤 길을 가든 너의 가능성은 그대로예요.<br>네가 고른 길을 믿고 힘차게 나아가요 ✨</div>
       <div class="mk-act on"><button class="go" id="mfAgain">다시 지원해 보기</button><button class="ghost" id="mfHome">처음으로</button></div></div>`; }
   $('mfBody').innerHTML=h; go('mfin');
 }
 function mkBind(){
-  $('mockRes').onclick=()=>openMock('result'); $('mockForm').onclick=()=>openMock('form');
+  $('mockRes').onclick=()=>openMock('result');
   $('mkBack').onclick=()=>{ setTheme(S.man?null:S.univ); go(MK.from); };
-  $('mrBack').onclick=()=>{ MK.tok++; setTheme(null); renderMock(); go('mock'); };
+  $('mrBack').onclick=()=>{ MK.tok++; setTheme(MK.last); renderMock(); go('mock'); };
   $('mkBody').addEventListener('click',e=>{
-    const x=e.target.closest('[data-clear]'); if(x){ e.stopPropagation(); MK.slots[x.dataset.clear]=null; renderMock(); return; }
+    const x=e.target.closest('[data-clear]'); if(x){ e.stopPropagation(); MK.slots[x.dataset.clear]=null; { const f=GUNS.map(g=>MK.slots[g]).filter(Boolean); mkSetLast(f.length?f[f.length-1].id:null); } renderMock(); return; }
     if(e.target.closest('#mkSubmit')){ if(!$('mkSubmit').disabled) mkSubmit(); return; }
     const s=e.target.closest('.mk-slot'); if(s){ MK.pick=s.dataset.g; openPicker('mu'); } });
   $('pList').addEventListener('click',e=>{
     const u=e.target.closest('[data-mu]'); if(u){ MK.tmpU=u.dataset.mu; mkOpenPicker('md'); return; }
-    const d=e.target.closest('[data-md]'); if(d){ MK.slots[MK.pick]={id:MK.tmpU,dept:d.dataset.md}; closePicker(); renderMock(); } });
+    const d=e.target.closest('[data-md]'); if(d){ MK.slots[MK.pick]={id:MK.tmpU,dept:d.dataset.md}; closePicker(); mkSetLast(MK.tmpU); renderMock(); } });
   $('mrBody').addEventListener('click',e=>{
     if(e.target.closest('#mrFinal')){ MK.phase=2; renderRes(); return; }
     if(e.target.closest('#mrEnroll')){ if(!$('mrEnroll').disabled) mkFin('enroll'); return; }
     if(e.target.closest('#mrRe')){ mkFin('re'); return; }
-    if(e.target.closest('#mrAgain')){ MK.tok++; renderMock(); go('mock'); return; }
+    if(e.target.closest('#mrAgain')){ MK.tok++; setTheme(MK.last); renderMock(); go('mock'); return; }
     if(e.target.closest('#mrNext')){ mkFin('fail'); return; }
     const c=e.target.closest('.mk-res.pickable'); if(c){ MK.choice=c.dataset.g; mrSel(); } });
   $('mfBody').addEventListener('click',e=>{
-    if(e.target.closest('#mfAgain')){ MK.tok++; setTheme(null); renderMock(); go('mock'); return; }
+    if(e.target.closest('#mfAgain')){ MK.tok++; setTheme(MK.last); renderMock(); go('mock'); return; }
     if(e.target.closest('#mfHome')){ MK.tok++; $('homeRes').click(); return; }
     if(e.target.closest('#mfRe')){ mkFin('re'); return; }
     if(e.target.closest('#mfPath')){ mkFin('path'); } });
-  const _rs=renderScores; renderScores=function(){ _rs.apply(this,arguments); updMk(); };
-  const _rb=renderBoxes; renderBoxes=function(){ _rb.apply(this,arguments); updMk(); };
 }
 
 /* ============ 시작 ============ */
