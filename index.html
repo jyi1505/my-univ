@@ -1289,6 +1289,15 @@ body[data-scr=mock] #sky,body[data-scr=mres] #sky,body[data-scr=mfin]:not([data-
   -webkit-text-stroke:.03em color-mix(in srgb,var(--tc) 85%,#fff);
   text-shadow:0 0 .35rem color-mix(in srgb,var(--tc) 80%,#fff),0 0 1rem var(--tc),0 0 2.2rem var(--tc),0 .15rem .6rem rgba(0,0,0,.4)}
 .tz .tz-n::after{content:"";display:block;width:62%;height:.18rem;margin:.55rem auto 0;border-radius:99px;background:linear-gradient(90deg,transparent,var(--tc),#fff,var(--tc),transparent);box-shadow:0 0 .8rem var(--tc)}
+
+/* 3분할(직선): 배경은 살짝만 섞고, 로고·상징·이름은 선 앞에서 사라지게 */
+.tz .tzb,.tz .tzc{position:absolute;inset:0;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#mock .mk-tri .seam{display:none}
+#mock .mk-tri .sm{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.85) 14%,rgba(255,255,255,.85) 86%,transparent);box-shadow:0 0 .9rem rgba(255,255,255,.7);opacity:.42;pointer-events:none}
+.tz .tz-sym{width:var(--sw)}
+.tz .tz-sym .bdg.xxl{--s:calc(var(--sw)*.85)}
+.tz .tz-lab{width:var(--zw);bottom:6%}
+.tz .tz-n{font-size:clamp(1.25rem,2.35vw,1.95rem);overflow-wrap:anywhere;word-break:keep-all;text-wrap:balance}
 </style>
 </head>
 <body data-scr="intro" class="booting">
@@ -2689,7 +2698,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795755506'; let updPending=false;
+const BUILD='1795756089'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -3140,20 +3149,25 @@ function mkBoom(g,id,dept){
 }
 function renderMkBg(){ const id=MK.last, el=$('mkBg'); if(el.dataset.k===String(id)) return; el.dataset.k=String(id);
   el.innerHTML=id?`<div class="brandlogo"><div class="aura"></div>${WMS.has(id)?`<div class="mascot ${id}">${wmImg(id)}</div>`:''}${badge(id,'xxl',UBY[id].n)}</div>`:''; }
-const TRI_MASK=['none','linear-gradient(96deg,transparent 35.5%,#000 40.5%)','linear-gradient(96deg,transparent 61.5%,#000 66.5%)'], TRI_CX=[19,53,83];
+const TRI_B=[35.75,64.25], TRI_CX=[19.5,50,80.5], TRI_ZW=[30,25,30], TRI_SW=[30,26,30];
+const triBgMask=i=>{ const L=i?TRI_B[i-1]:null, R=i<2?TRI_B[i]:null; if(i===0) return 'none'; return i===1?`linear-gradient(90deg,transparent ${L-1.6}%,#000 ${L+1.4}%)`:`linear-gradient(90deg,transparent ${L-1.6}%,#000 ${L+1.4}%)`; };
+const triCtMask=i=>{ const L=i?TRI_B[i-1]:null, R=i<2?TRI_B[i]:null, a=[];
+  if(L!==null) a.push(`transparent ${L-.3}%`,`#000 ${L+5}%`); else a.push('#000 0%');
+  if(R!==null) a.push(`#000 ${R-5}%`,`transparent ${R+.5}%`); else a.push('#000 100%');
+  return `linear-gradient(90deg,${a.join(',')})`; };
 function renderMkTri(){
   const tri=$('mkTri'), root=$('mock'); const all=GUNS.every(g=>MK.slots[g]);
   root.classList.toggle('tri',all);
   if(!all){ tri.classList.remove('on'); MK.boomG=null; setTimeout(()=>{ if(!root.classList.contains('tri')) tri.innerHTML=''; },700); return; }
   if(!tri.querySelector('.tz')){
-    tri.innerHTML=TRI_MASK.map((m,i)=>`<div class="tz" data-i="${i}" style="--cx:${TRI_CX[i]};-webkit-mask-image:${m};mask-image:${m}"></div>`).join('')
-      +`<svg class="seam" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="41" y1="0" x2="33" y2="100" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/><line x1="69" y1="0" x2="61" y2="100" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg>`;
+    tri.innerHTML=[0,1,2].map(i=>{ const b=triBgMask(i), c=triCtMask(i); return `<div class="tz" data-i="${i}" style="--cx:${TRI_CX[i]};--zw:${TRI_ZW[i]}%;--sw:${TRI_SW[i]}vw"><div class="tzb" style="-webkit-mask-image:${b};mask-image:${b}"></div><div class="tzc" style="-webkit-mask-image:${c};mask-image:${c}"></div></div>`; }).join('')
+      +TRI_B.map(x=>`<i class="sm" style="left:${x}%"></i>`).join('');
   }
   tri.classList.add('on');
   GUNS.forEach((g,i)=>{ const z=tri.querySelector(`.tz[data-i="${i}"]`), sl=MK.slots[g], id=sl.id; if(z.dataset.k===id) return;
     const m=uMeta(id), U=UBY[id], c=m.c; z.dataset.k=id; z.style.setProperty('--tc',c[2]);
-    z.style.background=`radial-gradient(48vmax 70vmax at ${TRI_CX[i]}% 38%,color-mix(in srgb,${c[0]} 72%,transparent),transparent 72%),linear-gradient(172deg,color-mix(in srgb,${c[0]} 42%,${c[1]}),${c[1]} 58%,color-mix(in srgb,${c[1]} 68%,#000))`;
-    z.innerHTML=`<div class="tz-sym">${WMS.has(id)?wmImg(id):badge(id,'xxl',U.n)}</div><div class="tz-logo">${badge(id,'xxl',U.n)}</div><div class="tz-lab"><div class="tz-n">${esc(U.n)}</div></div><i class="tz-ring"></i><i class="tz-ring r2"></i><i class="tz-fl"></i>`;
+    z.querySelector('.tzb').style.background=`radial-gradient(48vmax 70vmax at ${TRI_CX[i]}% 38%,color-mix(in srgb,${c[0]} 72%,transparent),transparent 72%),linear-gradient(172deg,color-mix(in srgb,${c[0]} 42%,${c[1]}),${c[1]} 58%,color-mix(in srgb,${c[1]} 68%,#000))`;
+    z.querySelector('.tzc').innerHTML=`<div class="tz-sym">${WMS.has(id)?wmImg(id):badge(id,'xxl',U.n)}</div><div class="tz-logo">${badge(id,'xxl',U.n)}</div><div class="tz-lab"><div class="tz-n">${esc(U.n)}</div></div><i class="tz-ring"></i><i class="tz-ring r2"></i><i class="tz-fl"></i>`;
     const boom=MK.boomG===g; z.classList.remove('boom','soft'); void z.offsetWidth; z.classList.add(boom?'boom':'soft');
     if(boom){ root.classList.add('shake'); setTimeout(()=>root.classList.remove('shake'),600); } });
   MK.boomG=null;
