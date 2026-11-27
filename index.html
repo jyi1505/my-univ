@@ -1298,6 +1298,9 @@ body[data-scr=mock] #sky,body[data-scr=mres] #sky,body[data-scr=mfin]:not([data-
 .tz .tz-sym .bdg.xxl{--s:calc(var(--sw)*.85)}
 .tz .tz-lab{width:var(--zw);bottom:6%}
 .tz .tz-n{font-size:clamp(1.25rem,2.35vw,1.95rem);overflow-wrap:anywhere;word-break:keep-all;text-wrap:balance}
+
+/* 구역 가운데 정렬 + 번짐 줄이기 */
+.tz .tz-n{text-shadow:0 0 .3rem color-mix(in srgb,var(--tc) 80%,#fff),0 0 .9rem var(--tc),0 0 1.5rem var(--tc),0 .1rem .4rem rgba(0,0,0,.4)}
 </style>
 </head>
 <body data-scr="intro" class="booting">
@@ -2698,7 +2701,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795756089'; let updPending=false;
+const BUILD='1795756648'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -3149,7 +3152,7 @@ function mkBoom(g,id,dept){
 }
 function renderMkBg(){ const id=MK.last, el=$('mkBg'); if(el.dataset.k===String(id)) return; el.dataset.k=String(id);
   el.innerHTML=id?`<div class="brandlogo"><div class="aura"></div>${WMS.has(id)?`<div class="mascot ${id}">${wmImg(id)}</div>`:''}${badge(id,'xxl',UBY[id].n)}</div>`:''; }
-const TRI_B=[35.75,64.25], TRI_CX=[19.5,50,80.5], TRI_ZW=[30,25,30], TRI_SW=[30,26,30];
+const TRI_B=[35.75,64.25], TRI_CX=[17.9,50,82.1], TRI_ZW=[30,25,30], TRI_SW=[30,26,30];
 const triBgMask=i=>{ const L=i?TRI_B[i-1]:null, R=i<2?TRI_B[i]:null; if(i===0) return 'none'; return i===1?`linear-gradient(90deg,transparent ${L-1.6}%,#000 ${L+1.4}%)`:`linear-gradient(90deg,transparent ${L-1.6}%,#000 ${L+1.4}%)`; };
 const triCtMask=i=>{ const L=i?TRI_B[i-1]:null, R=i<2?TRI_B[i]:null, a=[];
   if(L!==null) a.push(`transparent ${L-.3}%`,`#000 ${L+5}%`); else a.push('#000 0%');
