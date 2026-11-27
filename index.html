@@ -1316,7 +1316,7 @@ function tbl(rows,max){
   const seg=(x,ys)=>{ if(x>=R[n-1][0]) return ys[n-1]; if(x<=R[0][0]){ const s=(ys[1]-ys[0])/(R[1][0]-R[0][0]); return ys[0]+(x-R[0][0])*s; }
     for(let i=0;i<n-1;i++){ if(x<=R[i+1][0]){ const t=(x-R[i][0])/(R[i+1][0]-R[i][0]); return ys[i]+t*(ys[i+1]-ys[i]); } } return ys[n-1]; };
   const stds=R.map(r=>r[1]);
-  return {max,f:x=>seg(Math.max(0,Math.min(max,x)),zs),std:x=>Math.max(0,seg(Math.max(0,Math.min(max,x)),stds))};
+  return {max,cuts:rows.slice(1).map(r=>r[0]),f:x=>seg(Math.max(0,Math.min(max,x)),zs),std:x=>Math.max(0,seg(Math.max(0,Math.min(max,x)),stds))};
 }
 
 /* ============ 모의고사 자료 (최신순) ============ */
@@ -1350,8 +1350,8 @@ const EXAMS={
    kor:tbl([[100,142,100],[91,134,96],[81,126,88],[72,118,77],[59,107,60],[42,92,40],[28,80,23],[22,75,12],[17,71,4]],100),
    math:tbl([[100,151,100],[88,140,96],[73,127,89],[58,114,76],[46,104,61],[33,92,40],[21,82,22],[14,76,11],[11,73,4]],100),
    soc:tbl([[50,70,100],[44.5,66,96],[41,63,89],[36.5,59,78],[30.5,54,61],[22,47,39],[15,41,24],[9,36,10],[7,34,5]],50),
-   sci:tam(47.0,26.8),
-   conf:{kor:'확인',math:'확인',soc:'확인',sci:'추정'},note:'EBSi 확정 등급컷 표를 그대로 썼어요. 통합과학만 표를 아직 못 받아서 1등급 컷 기반 추정이에요.'},
+   sci:tbl([[50,71,99],[46.5,68,96],[42,64,89],[34.5,58,76],[27.5,52,60],[20.5,46,39],[14.5,41,23],[10,37,9],[7.5,35,3]],50),
+   conf:{kor:'확인',math:'확인',soc:'확인',sci:'확인'},note:'EBSi 확정 등급컷 표(원점수·표준점수·백분위)를 그대로 썼어요.'},
  'g1-sep25':{label:'2025.09 고1 학평',stage:'g1',
    kor:tbl([[100,156,100],[81,136,96],[72,126,88],[62,116,76],[52,105,60],[41,93,40],[31,83,23],[23,74,10],[18,69,3]],100),
    math:tbl([[100,150,99],[82,134,96],[73,125,89],[64,117,76],[53,107,60],[38,93,39],[25,82,24],[16,73,10],[12,70,3]],100),
@@ -1378,7 +1378,7 @@ const STAGE_NAME={g1:'고1',g2:'고2',g3:'고3'};
 /* ============ 대학·학과 자료 ============ */
 // 기준: 2026학년도 정시 최종등록자 국수탐 평균 백분위 70%컷(어디가 공시 기반 집계). 'e' = 사이트 자체 추정치.
 // 각 줄: 군|학과|컷   (군을 모르면 -)
-const P=(s)=>s.trim().split('\n').map(l=>{const a=l.split('|');return [a[1].trim(),parseFloat(a[2]),a[0].trim()];});
+const P=(s)=>s.trim().split('\n').map(l=>{const a=l.split('|');return [a[1].trim(),parseFloat(a[2]),a[0].trim(),a[3]?a[3].trim():undefined];});
 const UNIV=[
 {id:'snu',n:'서울대학교',s:'서울대',al:['서울대','설대','snu','서울'],src:'e',
  note:'서울대학교는 정시 컷을 환산점수로 공개해서, 아래는 입시호구탈출의 자체 추정치(영어 제외)예요.',d:P(`
@@ -1671,7 +1671,8 @@ const UNIV=[
 가|국제학부|89
 나|스포츠사이언스전공|89
 가|유기나노공학과|88
-가|사학과|87`)},
+가|사학과|87
+가|연극영화학과(영화)|91.4`)},
 {id:'cau',n:'중앙대학교',s:'중앙대',al:['중앙대','중대','중앙','cau'],src:'o',d:P(`
 나|의학부(의예)|99
 가|약학부|97
@@ -1716,7 +1717,14 @@ const UNIV=[
 가|역사학과|87
 나|국어국문학전공|86
 가|영어영문학과|85
-나|체육교육과|85`)},
+나|체육교육과|85
+가|동물생명공학전공(다빈치)|74.0
+가|시스템생명공학과(다빈치)|72.7
+가|식물생명공학전공(다빈치)|74.0
+가|식품공학전공(다빈치)|77.3
+가|식품영양전공(다빈치)|75.0
+나|예술공학과(다빈치)|75.0
+나|첨단소재공학과(다빈치)|78.6`)},
 {id:'khu',n:'경희대학교',s:'경희대',al:['경희대','경희','khu'],src:'o',d:P(`
 나|의예과(자연계열)|98
 나|치의예과(자연계열)|98
@@ -1822,7 +1830,9 @@ const UNIV=[
 나|경영학부|86
 나|세무학과|86
 다|융합응용화학과|91
-다|첨단융합학부(지능형반도체전공)|91`)},
+다|첨단융합학부(지능형반도체전공)|91
+다|융합바이오헬스전공|86|e
+다|첨단인공지능전공|88|e`)},
 {id:'konkuk',n:'건국대학교',s:'건국대',al:['건국대','건대','건국','konkuk'],src:'o',d:P(`
 가|수의예과|96
 가|기계·로봇·자동차공학부|93
@@ -1865,7 +1875,11 @@ const UNIV=[
 다|융합생명공학과|91
 다|컴퓨터공학부|90
 다|공과대학자유전공학부|90
-다|시스템생명공학과|89`)},
+다|시스템생명공학과|89
+가|일어교육과|87|e
+나|사회과학대학융합전공학부|88|e
+나|지리학과|84.9
+나|철학과|88.1`)},
 {id:'dgu',n:'동국대학교',s:'동국대',al:['동국대','동대','동국','dongguk'],src:'o',d:P(`
 나|약학과|97
 나|철학과|91
@@ -1963,7 +1977,8 @@ const UNIV=[
 가|문화관광학전공|81
 가|가족자원경영학과|81
 나|자유전공학부|81
-가|행정학과|79`)},
+가|행정학과|79
+가|테슬(TESL)전공|82.5`)},
 {id:'kmu',n:'국민대학교',s:'국민대',al:['국민대','국민','kookmin'],src:'o',d:P(`
 다|경제학과|90
 다|나노전자물리학과|89
@@ -1991,7 +2006,13 @@ const UNIV=[
 나|행정학과|83
 나|소프트웨어학부|82
 가|자유전공(A)|78
-나|미래융합전공(C)|78`)},
+나|미래융합전공(C)|78
+가|미디어전공|86|e
+다|국어국문학전공|84|e
+다|글로벌한국어전공|82|e
+가|식품영양학과|82|e
+가|임산생명공학과|80|e
+다|산림환경시스템학과|80|e`)},
 {id:'ssu',n:'숭실대학교',s:'숭실대',al:['숭실대','숭실','soongsil'],src:'o',d:P(`
 다|정보보호학과|92
 다|정보통계·보험수리학과|90
@@ -2050,7 +2071,11 @@ const UNIV=[
 다|첨단융합계열|84
 나|자연생명계열|83
 가|IT계열|82
-다|자유전공학부|81`)},
+다|자유전공학부|81
+가|국방AI로봇융합공학과|83|e
+가|국방AI융합시스템공학과|83|e
+나|디자인이노베이션전공|83|e
+나|만화애니메이션텍전공|81|e`)},
 {id:'seoultech',n:'서울과학기술대학교',s:'서울과기대',al:['서울과기대','서울과학기술대','과기대','seoultech'],src:'o',d:P(`
 가|MSDE학과|90
 다|미래에너지융합학과|90
@@ -2415,7 +2440,7 @@ function setSky(id){ const key=(id&&ART.map[id])?id:null; if(key===skyId) return
   if(key){ const d=document.createElement('div'); d.className='sk'+(PHOTOSKY.has(key)?' ph':''); d.innerHTML=PHOTOSKY.has(key)?`<img src="${fast(skySrc(key))}" alt="" decoding="async">`:ART.sky(key); box.appendChild(d); requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('on'))); } }
 function target(){
   if(S.man){ const cut=num(S.mC); if(!S.mU||!S.mD||!Number.isFinite(cut)||cut<=0||cut>100) return null; return {id:null,u:S.mU,d:S.mD,cut,src:'m',note:'직접 입력한 컷이에요.'}; }
-  if(S.univ&&S.dept){ const U=UBY[S.univ]; const d=U.d.find(x=>x[0]===S.dept); if(d){ const rc=ruralCut(U.id,d[0],d[1]); return {id:U.id,u:U.n,d:d[0],cut:rc.cut,cut0:d[1],gun:d[2],src:U.src,note:U.note||'',rural:rc.i}; } }
+  if(S.univ&&S.dept){ const U=UBY[S.univ]; const d=U.d.find(x=>x[0]===S.dept); if(d){ const rc=ruralCut(U.id,d[0],d[1]); return {id:U.id,u:U.n,d:d[0],cut:rc.cut,cut0:d[1],gun:d[2],src:(d[3]==='e'?'e':U.src),note:U.note||'',rural:rc.i}; } }
   return null;
 }
 
@@ -2491,7 +2516,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795734731'; let updPending=false;
+const BUILD='1795743912'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2578,6 +2603,7 @@ function stepScore(k,dir){
   if(cur===''||!Number.isFinite(Number(cur))) nv=DEFV[k]; else { const v=Number(cur); nv=nextValid(k,v,dir); if(nv===null) return; }
   S.raw[k]=String(nv); $('in-'+k).value=S.raw[k]; save(); renderScores();
 }
+const gradeCut=(m,x)=>{ const cs=m.cuts; for(let i=0;i<cs.length;i++) if(x>=cs[i]) return i+1; return 9; };
 const gradeRel=p=>p>=96?1:p>=89?2:p>=77?3:p>=60?4:p>=40?5:p>=23?6:p>=11?7:p>=4?8:9;
 function medalSvg(k,g){
   const t=g===1?'g':g===2?'s':g===3?'b':'n', id=`mg${k}`;
@@ -2618,7 +2644,7 @@ function renderScores(){
     ou.className='ou'; const v=ck.v;
     ga.classList.add('on');
     if(s.k==='eng'||s.k==='hist'){ const g=s.k==='eng'?gradeEng(v):gradeHist(v); ou.innerHTML=`<span class="mk">${g}등급</span><span>절대평가</span>`; setMedal(s.k,g); ga.querySelectorAll('.gp b').forEach((b,i)=>b.classList.toggle('on',i+1===g)); gt.textContent=g===1?'최상위 등급이에요':g+'등급 · 점수 '+f0(v)+'점'; }
-    else { const m=E[s.k]; const z=m.f(v); const p=pctFromZ(z); ou.innerHTML=`<span>표점 <b>${f0(m.std(v))}</b></span><span>백분위 <b>${f2(p)}</b></span>`; setMedal(s.k,gradeRel(p)); const w=Math.max(0,Math.min(100,(p-50)*2)); ga.querySelector('.bar i').style.width=w+'%'; ga.querySelector('.bar u').style.left=w+'%'; gt.textContent='상위 '+f2(100-p)+'%'; }
+    else { const m=E[s.k]; const z=m.f(v); const p=pctFromZ(z); ou.innerHTML=`<span>표점 <b>${f0(m.std?m.std(v):((s.k==='kor'||s.k==='math')?stdKM(z):50+10*z))}</b></span><span>백분위 <b>${f2(p)}</b></span>`; setMedal(s.k,m.cuts?gradeCut(m,v):gradeRel(p+.01)); const w=Math.max(0,Math.min(100,(p-50)*2)); ga.querySelector('.bar i').style.width=w+'%'; ga.querySelector('.bar u').style.left=w+'%'; gt.textContent='상위 '+f2(100-p)+'%'; }
   }
   if(!S.exam) okN=0;
   $('done').disabled=okN<6; $('doneHint').textContent=!S.exam?'먼저 위에서 학년 · 월을 골라요':okN<6?`${6-okN}개 과목이 남았어요`:'';
@@ -2630,7 +2656,7 @@ function renderNotice(){
   if(step==='1'){ $('notice').innerHTML=`<span><b>${esc(E.label)}</b> · ${esc(E.note)} 표에 없는 점수의 표점·백분위는 등급컷 사이를 이어서 추정한 값이에요. ${STAGE_NAME[E.stage]} 시험이라 확률은 조금 넓게 봐요.</span>`; return; }
   const u=S.univ?UBY[S.univ]:null;
   if(S.man) $('notice').innerHTML=`<span>직접 입력한 컷으로 계산해요. 컷은 작년 합격자 <b>국수탐 평균 백분위 70%컷</b>을 넣어요.</span>`;
-  else if(u) $('notice').innerHTML=`<span><b>${esc(u.n)}</b> · 컷은 2026학년도 합격자 국수탐 평균 백분위 70%컷${u.src==='e'?' <b>(사이트 자체 추정치)</b>':''}이에요. ${esc(u.note||'')}${ruralLine(u.id,S.dept)}</span>`;
+  else if(u) $('notice').innerHTML=`<span><b>${esc(u.n)}</b> · 컷은 2026학년도 합격자 국수탐 평균 백분위 70%컷${(u.src==='e'||(S.dept&&(u.d.find(x=>x[0]===S.dept)||[])[3]==='e'))?' <b>(사이트 자체 추정치)</b>':''}이에요. ${esc(u.note||'')}${ruralLine(u.id,S.dept)}</span>`;
   else $('notice').innerHTML=`<span>오른쪽 <b>대학</b> 칸을 눌러 대학을 골라요. 자료에 없는 대학은 목록 아래 <b>컷 직접 입력</b>을 쓰면 돼요.</span>`;
 }
 
@@ -2724,7 +2750,7 @@ function renderPicker(){
   } else if(PM==='d'){
     const U=UBY[S.univ]; const list=U.d.filter(d=>match(q,[d[0]]));
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}" 학과는 자료에 없어요.<br>이 대학이 목록에 없는 학과라면 <b>컷 직접 입력</b>을 써 보세요.</div>`; return; }
-    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr${S.dept===d[0]?' sel':''}" data-d="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${U.src==='e'?'<span class="tg e">추정</span>':''}${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:''}</button>`).join('');
+    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr${S.dept===d[0]?' sel':''}" data-d="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${(U.src==='e'||d[3]==='e')?'<span class="tg e">추정</span>':''}${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:''}</button>`).join('');
   }
 }
 function confirmManual(){
@@ -2931,7 +2957,7 @@ function renderMock(){
   const cards=GUNS.map(g=>{ const s=MK.slots[g];
     if(!s) return `<div class="mk-slot glass empty" data-g="${g}"><span class="mk-gun">${g}군</span><div class="mk-plus">＋</div><div class="mk-hint">대학 · 학과 고르기</div></div>`;
     const U=UBY[s.id], p=mkProb(s)*100, [bn,bc]=band(p), mt=uMeta(s.id);
-    return `<div class="mk-slot glass" data-g="${g}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}"><span class="mk-gun">${g}군</span><button class="mk-x" data-clear="${g}" aria-label="비우기">✕</button>${badge(s.id,'l',U.n)}<div class="mk-un">${esc(U.n)}</div><div class="mk-dn">${esc(s.dept)}</div><div class="mk-pp" style="--bc:${bc}"><b>${f1(p)}%</b><i>${bn}</i></div>${U.src==='e'?'<span class="tg e">추정</span>':''}</div>`; }).join('');
+    return `<div class="mk-slot glass" data-g="${g}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}"><span class="mk-gun">${g}군</span><button class="mk-x" data-clear="${g}" aria-label="비우기">✕</button>${badge(s.id,'l',U.n)}<div class="mk-un">${esc(U.n)}</div><div class="mk-dn">${esc(s.dept)}</div><div class="mk-pp" style="--bc:${bc}"><b>${f1(p)}%</b><i>${bn}</i></div>${(U.src==='e'||d[3]==='e')?'<span class="tg e">추정</span>':''}</div>`; }).join('');
   $('mkBody').innerHTML=`<div class="mk-head"><div class="mk-tag">🎯 모의지원</div><h1>원서, 어디에 넣어 볼까요?</h1><p>가·나·다군에 한 곳씩 지원해 봐요. 내 예측 점수 <b>${f1(c.eff)}</b> 기준으로 발표가 나는데, 확률이 낮아도 <b>우주상향</b>이 붙을 수 있고 높아도 떨어질 수 있어요.</p></div>
    <div class="mk-slots">${cards}</div>
    <div class="mk-act"><button class="go" id="mkSubmit" ${n?'':'disabled'}>원서 접수하고 발표 보기 (${n}곳)</button></div>`;
@@ -2949,7 +2975,7 @@ function mkRenderPicker(){
     L.innerHTML=list.map(u=>{ const mt=uMeta(u.id); const k=u.d.filter(d=>mkOkGun(d,g)).length; return `<button class="pr" data-mu="${u.id}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}">${badge(u.id,'m',u.n)}<span class="n">${esc(u.n)}<small>${g}군 ${k}개 모집단위</small></span>${u.src==='e'?'<span class="tg e">추정</span>':''}</button>`; }).join('');
   } else { const U=UBY[MK.tmpU]; const list=U.d.filter(d=>mkOkGun(d,g)&&match(q,[d[0]]));
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}" 학과가 없어요.</div>`; return; }
-    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr" data-md="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${U.src==='e'?'<span class="tg e">추정</span>':''}${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:'<span class="gn">군 외</span>'}</button>`).join(''); }
+    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr" data-md="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${(U.src==='e'||d[3]==='e')?'<span class="tg e">추정</span>':''}${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:'<span class="gn">군 외</span>'}</button>`).join(''); }
 }
 function mkSubmit(){
   const c=compute(); if(!c.ok) return;
