@@ -1275,6 +1275,12 @@ body[data-scr=mock] #sky,body[data-scr=mres] #sky,body[data-scr=mfin]:not([data-
 @keyframes tzfl{0%{opacity:.95}100%{opacity:0}}
 @keyframes tzring{0%{transform:scale(.3);opacity:.95}100%{transform:scale(3.4);opacity:0}}
 #mock .mk-tri .seam{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 .7rem #fff) drop-shadow(0 0 1.6rem rgba(255,255,255,.55))}
+
+/* 3분할: 경계를 부드럽게 섞기 */
+.tz{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#mock .mk-tri .seam{display:none}
+.pr.dis{opacity:.42;cursor:not-allowed}
+.pr.dis .gn{font-size:.82rem}
 </style>
 </head>
 <body data-scr="intro" class="booting">
@@ -2675,7 +2681,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795753710'; let updPending=false;
+const BUILD='1795754532'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -3126,20 +3132,19 @@ function mkBoom(g,id,dept){
 }
 function renderMkBg(){ const id=MK.last, el=$('mkBg'); if(el.dataset.k===String(id)) return; el.dataset.k=String(id);
   el.innerHTML=id?`<div class="brandlogo"><div class="aura"></div>${WMS.has(id)?`<div class="mascot ${id}">${wmImg(id)}</div>`:''}${badge(id,'xxl',UBY[id].n)}</div>`:''; }
-const TRI_CLIP=['polygon(0 0,41% 0,33% 100%,0 100%)','polygon(41% 0,69% 0,61% 100%,33% 100%)','polygon(69% 0,100% 0,100% 100%,61% 100%)'], TRI_CX=[19,53,83];
+const TRI_MASK=['none','linear-gradient(96deg,transparent 33%,#000 43%)','linear-gradient(96deg,transparent 59%,#000 69%)'], TRI_CX=[19,53,83];
 function renderMkTri(){
   const tri=$('mkTri'), root=$('mock'); const all=GUNS.every(g=>MK.slots[g]);
   root.classList.toggle('tri',all);
   if(!all){ tri.classList.remove('on'); MK.boomG=null; setTimeout(()=>{ if(!root.classList.contains('tri')) tri.innerHTML=''; },700); return; }
   if(!tri.querySelector('.tz')){
-    tri.innerHTML=TRI_CLIP.map((c,i)=>`<div class="tz" data-i="${i}" style="clip-path:${c};--cx:${TRI_CX[i]}"></div>`).join('')
-      +`<svg class="seam" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="41" y1="0" x2="33" y2="100" stroke="#fff" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linecap="round"/><line x1="69" y1="0" x2="61" y2="100" stroke="#fff" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg>`;
+    tri.innerHTML=TRI_MASK.map((m,i)=>`<div class="tz" data-i="${i}" style="--cx:${TRI_CX[i]};-webkit-mask-image:${m};mask-image:${m}"></div>`).join('');
   }
   tri.classList.add('on');
   GUNS.forEach((g,i)=>{ const z=tri.querySelector(`.tz[data-i="${i}"]`), sl=MK.slots[g], id=sl.id; if(z.dataset.k===id) return;
     const m=uMeta(id), U=UBY[id], c=m.c; z.dataset.k=id; z.style.setProperty('--tc',c[2]);
     z.style.background=`radial-gradient(48vmax 70vmax at ${TRI_CX[i]}% 38%,color-mix(in srgb,${c[0]} 72%,transparent),transparent 72%),linear-gradient(172deg,color-mix(in srgb,${c[0]} 42%,${c[1]}),${c[1]} 58%,color-mix(in srgb,${c[1]} 68%,#000))`;
-    z.innerHTML=`<div class="tz-sym">${WMS.has(id)?wmImg(id):badge(id,'xxl',U.n)}</div><div class="tz-logo">${badge(id,'xxl',U.n)}</div><div class="tz-lab"><div class="tz-g">${g}군</div><div class="tz-n">${esc(U.n)}</div></div><i class="tz-ring"></i><i class="tz-ring r2"></i><i class="tz-fl"></i>`;
+    z.innerHTML=`<div class="tz-sym">${WMS.has(id)?wmImg(id):badge(id,'xxl',U.n)}</div><div class="tz-logo">${badge(id,'xxl',U.n)}</div><div class="tz-lab"><div class="tz-n">${esc(U.n)}</div></div><i class="tz-ring"></i><i class="tz-ring r2"></i><i class="tz-fl"></i>`;
     const boom=MK.boomG===g; z.classList.remove('boom','soft'); void z.offsetWidth; z.classList.add(boom?'boom':'soft');
     if(boom){ root.classList.add('shake'); setTimeout(()=>root.classList.remove('shake'),600); } });
   MK.boomG=null;
@@ -3170,7 +3175,8 @@ function mkRenderPicker(){
     L.innerHTML=list.map(u=>{ const mt=uMeta(u.id); const k=u.d.filter(d=>mkOkGun(d,g)).length; return `<button class="pr" data-mu="${u.id}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}">${badge(u.id,'m',u.n)}<span class="n">${esc(u.n)}<small>${g}군 ${k}개 모집단위</small></span></button>`; }).join('');
   } else { const U=UBY[MK.tmpU]; const list=U.d.filter(d=>mkOkGun(d,g)&&match(q,[d[0]]));
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}" 학과가 없어요.</div>`; return; }
-    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr" data-md="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:'<span class="gn">군 외</span>'}</button>`).join(''); }
+    const taken={}; GUNS.forEach(x=>{ const t=MK.slots[x]; if(x!==g&&t&&t.id===MK.tmpU) taken[t.dept]=x; });
+    L.innerHTML=list.slice(0,160).map(d=>taken[d[0]]?`<button class="pr dis" disabled><span class="n">${esc(d[0])}</span><span class="gn">${taken[d[0]]}군에 이미 지원</span></button>`:`<button class="pr" data-md="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:'<span class="gn">군 외</span>'}</button>`).join(''); }
 }
 function mkSubmit(){
   const c=compute(); if(!c.ok) return;
@@ -3244,7 +3250,7 @@ function mkBind(){
     const s=e.target.closest('.mk-slot'); if(s){ MK.pick=s.dataset.g; openPicker('mu'); } });
   $('pList').addEventListener('click',e=>{
     const u=e.target.closest('[data-mu]'); if(u){ MK.tmpU=u.dataset.mu; mkOpenPicker('md'); return; }
-    const d=e.target.closest('[data-md]'); if(d){ MK.slots[MK.pick]={id:MK.tmpU,dept:d.dataset.md}; const pid=MK.tmpU, pg=MK.pick; closePicker(); mkPre(pid); if(GUNS.every(g=>MK.slots[g])){ MK.boomG=pg; mkSetLast(pid); renderMock(); return; } renderMock(); mkBoom(pg,pid,d.dataset.md); setTimeout(()=>{ if(scr==='mock') requestAnimationFrame(()=>{ mkSetLast(pid); renderMock(); }); },900); } });
+    const d=e.target.closest('[data-md]'); if(d){ if(GUNS.some(x=>x!==MK.pick&&MK.slots[x]&&MK.slots[x].id===MK.tmpU&&MK.slots[x].dept===d.dataset.md)) return; MK.slots[MK.pick]={id:MK.tmpU,dept:d.dataset.md}; const pid=MK.tmpU, pg=MK.pick; closePicker(); mkPre(pid); if(GUNS.every(g=>MK.slots[g])){ MK.boomG=pg; mkSetLast(pid); renderMock(); return; } renderMock(); mkBoom(pg,pid,d.dataset.md); setTimeout(()=>{ if(scr==='mock') requestAnimationFrame(()=>{ mkSetLast(pid); renderMock(); }); },900); } });
   $('mrBody').addEventListener('click',e=>{
     if(e.target.closest('#mrFinal')){ MK.phase=2; renderRes(); return; }
     if(e.target.closest('#mrEnroll')){ if(!$('mrEnroll').disabled) mkFin('enroll'); return; }
