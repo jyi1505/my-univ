@@ -1238,6 +1238,10 @@ body[data-scr=mock] #sky,body[data-scr=mres] #sky,body[data-scr=mfin]:not([data-
   #form[data-step="1"] .pj .pjt{font-size:clamp(1.9rem,3.5vw,2.7rem)}
   #form[data-step="1"] .pj .moon{width:2.1rem;height:2.1rem}
 }
+
+/* ===== 막대: 0점 ~ 만점 전체 (영어·한국사 포함) ===== */
+.ga .bar s{position:absolute;top:-.22rem;bottom:-.22rem;width:2px;margin-left:-1px;border-radius:1px;background:rgba(255,255,255,.4);pointer-events:none}
+#form[data-step="1"] .ga .bar s{background:rgba(10,30,90,.3)}
 </style>
 </head>
 <body data-scr="intro" class="booting">
@@ -2637,7 +2641,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795752227'; let updPending=false;
+const BUILD='1795752941'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2672,8 +2676,8 @@ function renderPJ(){
 }
 const SUBJ_UI={kor:['#ff5d8f','가'],eng:['#35e0c2','A'],math:['#5aa2ff','Σ'],hist:['#ffc14d','史'],soc:['#7ee06a','社'],sci:['#b58cff','理']};
 function buildScoreCards(){
-  const gauge=k=>(k==='eng'||k==='hist')?`<div class="ga" id="ga-${k}"><div class="gp">${[1,2,3,4,5,6,7,8,9].map(g=>`<b>${g}</b>`).join('')}</div><div class="top" id="gt-${k}"></div></div>`
-    :`<div class="ga" id="ga-${k}"><div class="bar"><i></i><u></u></div><div class="tk"><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div><div class="top" id="gt-${k}"></div></div>`;
+  const gauge=k=>{ const mx=RULE[k].max, cuts=k==='eng'?ENG_T:k==='hist'?HIST_T:[]; const notch=cuts.map(c=>`<s style="left:${(c/mx*100).toFixed(2)}%"></s>`).join('');
+    return `<div class="ga" id="ga-${k}"><div class="bar"><i></i>${notch}<u></u></div><div class="top" id="gt-${k}"></div></div>`; };
   $('sgrid').innerHTML=SUBJ.map(s=>`<div class="sc glass" id="sc-${s.k}" style="--ac:${SUBJ_UI[s.k][0]}"><div class="hd"><span class="ic">${SUBJ_UI[s.k][1]}</span><b>${s.nm}</b><small>${s.sub} · ${s.max}점</small><span class="medal" id="md-${s.k}"></span></div>
     <div class="io"><button class="st" data-k="${s.k}" data-d="-1" aria-label="${s.nm} 내리기">−</button>
     <input id="in-${s.k}" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(S.raw[s.k])}" aria-label="${s.nm} 원점수">
@@ -2692,7 +2696,7 @@ function initBarDrag(){
   const g=$('sgrid'); let drag=null, raf=0, pend=null;
   const cand={};
   const valsFor=k=>cand[k]||(cand[k]=(()=>{ const r=RULE[k], o=[]; for(let x=0;x<=r.max+1e-9;x=R2(x+r.step)) if(isValid(k,x)) o.push(x); return o; })());
-  const pick=(k,f)=>{ const m=EXAMS[S.exam][k], tp=50+50*f; let best=null, bd=1e9; for(const v of valsFor(k)){ const d=Math.abs(pctFromZ(m.f(v))-tp); if(d<=bd+1e-9){ bd=d; best=v; } } return best; };
+  const pick=(k,f)=>{ const t=f*RULE[k].max; let best=null, bd=1e9; for(const v of valsFor(k)){ const d=Math.abs(v-t); if(d<bd-1e-9){ bd=d; best=v; } } return best; };
   const flush=()=>{ raf=0; if(!pend) return; const {k,v}=pend; pend=null; S.raw[k]=String(v); $('in-'+k).value=S.raw[k]; save(); renderScores(); };
   const apply=e=>{ if(!drag) return; const r=drag.bar.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(e.clientX-r.left)/Math.max(1,r.width))); const v=pick(drag.k,f); if(v===null||String(v)===S.raw[drag.k]) return; pend={k:drag.k,v}; if(!raf) raf=requestAnimationFrame(flush); };
   g.addEventListener('pointerdown',e=>{ const bar=e.target.closest('.ga .bar'); if(!bar||!S.exam) return; const ga=bar.closest('.ga'); drag={k:ga.id.slice(3),bar,ga}; ga.classList.add('drag'); try{ bar.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); apply(e); });
@@ -2775,11 +2779,12 @@ function renderScores(){
     box.classList.toggle('bad',ck.st==='bad'); er.textContent=ck.st==='bad'?ck.msg:'';
     if(ck.st==='ok') okN++;
     const ga=$('ga-'+s.k), gt=$('gt-'+s.k);
-    if(ck.st!=='ok'){ ou.className='ou dim'; ou.innerHTML=ck.st==='empty'?'점수를 넣어요':''; ga.classList.remove('on'); if(s.k==='eng'||s.k==='hist') ga.querySelectorAll('.gp b').forEach(b=>b.classList.remove('on')); else ga.querySelector('.bar i').style.width='0'; gt.textContent=''; setMedal(s.k,0); continue; }
+    if(ck.st!=='ok'){ ou.className='ou dim'; ou.innerHTML=ck.st==='empty'?'점수를 넣어요':''; ga.classList.remove('on'); ga.querySelector('.bar i').style.width='0'; ga.querySelector('.bar u').style.left='0'; gt.textContent=''; setMedal(s.k,0); continue; }
     ou.className='ou'; const v=ck.v;
     ga.classList.add('on');
-    if(s.k==='eng'||s.k==='hist'){ const g=s.k==='eng'?gradeEng(v):gradeHist(v); ou.innerHTML=`<span class="mk">${g}등급</span><span>절대평가</span>`; setMedal(s.k,g); ga.querySelectorAll('.gp b').forEach((b,i)=>b.classList.toggle('on',i+1===g)); gt.textContent=g===1?'최상위 등급이에요':g+'등급 · 점수 '+f0(v)+'점'; }
-    else { const m=E[s.k]; const z=m.f(v); const p=pctFromZ(z); ou.innerHTML=`<span>표점 <b>${f0(m.std?m.std(v):((s.k==='kor'||s.k==='math')?stdKM(z):50+10*z))}</b></span><span>백분위 <b>${f2(p)}</b></span>`; setMedal(s.k,m.cuts?gradeCut(m,v):gradeRel(p+.01)); const w=Math.max(0,Math.min(100,(p-50)*2)); ga.querySelector('.bar i').style.width=w+'%'; ga.querySelector('.bar u').style.left=w+'%'; gt.textContent='상위 '+f2(100-p)+'%'; }
+    if(s.k==='eng'||s.k==='hist'){ const g=s.k==='eng'?gradeEng(v):gradeHist(v); ou.innerHTML=`<span class="mk">${g}등급</span><span>절대평가</span>`; setMedal(s.k,g); gt.textContent=g===1?'최상위 등급이에요':g+'등급 · 점수 '+f0(v)+'점'; }
+    else { const m=E[s.k]; const z=m.f(v); const p=pctFromZ(z); ou.innerHTML=`<span>표점 <b>${f0(m.std?m.std(v):((s.k==='kor'||s.k==='math')?stdKM(z):50+10*z))}</b></span><span>백분위 <b>${f2(p)}</b></span>`; setMedal(s.k,m.cuts?gradeCut(m,v):gradeRel(p+.01)); gt.textContent='상위 '+f2(100-p)+'%'; }
+    { const w=Math.max(0,Math.min(100,v/RULE[s.k].max*100)); ga.querySelector('.bar i').style.width=w+'%'; ga.querySelector('.bar u').style.left=w+'%'; }
   }
   if(!S.exam) okN=0;
   $('done').disabled=okN<6; $('doneHint').textContent=!S.exam?'먼저 위에서 학년 · 월을 골라요':okN<6?`${6-okN}개 과목이 남았어요`:'';
@@ -2874,7 +2879,7 @@ function openPicker(mode){
   else $('pFoot').innerHTML=`<span>학과를 누르면 바로 골라져요</span>`;
   $('pFoot').style.flexWrap='wrap';
 }
-function closePicker(){ $('picker').classList.remove('on'); PM=null; try{ document.activeElement&&document.activeElement.blur(); }catch(e){} }
+function closePicker(){ $('picker').classList.remove('on'); PM=null; $('pClose').textContent='✕'; $('pClose').setAttribute('aria-label','닫기'); try{ document.activeElement&&document.activeElement.blur(); }catch(e){} }
 function renderPicker(){
   if(PM==='mu'||PM==='md') return mkRenderPicker();
   const q=$('pIn').value; const L=$('pList'); L.scrollTop=0;
@@ -3045,8 +3050,9 @@ function bind(){
   for(const id of ['infoBtn','infoBtn2']) $(id).onclick=()=>$('info').classList.add('on');
   $('infoClose').onclick=()=>$('info').classList.remove('on');
   $('info').addEventListener('pointerdown',e=>{ if(e.target.id==='info') $('info').classList.remove('on'); });
-  $('pClose').onclick=closePicker;
-  $('picker').addEventListener('pointerdown',e=>{ if(e.target.id==='picker') closePicker(); });
+  const pBack=()=>{ if(PM==='md') mkOpenPicker('mu'); else closePicker(); };
+  $('pClose').onclick=pBack;
+  $('picker').addEventListener('pointerdown',e=>{ if(e.target.id==='picker') pBack(); });
   $('pIn').addEventListener('input',renderPicker);
   $('pList').addEventListener('click',e=>{ const u=e.target.closest('[data-u]'); if(u){ pickUniv(u.dataset.u); return; } const d=e.target.closest('[data-d]'); if(d) pickDept(d.dataset.d); });
   $('pFoot').addEventListener('click',e=>{ if(e.target.id==='manOpen'){ $('manBox').classList.add('on'); e.target.style.display='none'; } if(e.target.id==='manOk') confirmManual(); });
@@ -3099,6 +3105,7 @@ function renderMock(){
 }
 function mkOpenPicker(mode){
   PM=mode; $('picker').classList.add('on'); $('pIn').value=''; $('pList').scrollTop=0; const g=MK.pick;
+  $('pClose').textContent=mode==='md'?'←':'✕'; $('pClose').setAttribute('aria-label',mode==='md'?'이전 (대학 목록)':'닫기');
   if(mode==='mu'){ $('pTitle').textContent=`${g}군 · 대학 선택`; $('pIn').placeholder='대학 이름을 검색해요'; }
   else { const U=UBY[MK.tmpU]; $('pTitle').innerHTML=`<span style="display:inline-flex;align-items:center;gap:.8rem">${badge(U.id,'s',U.n)}${esc(U.n)} · ${g}군 학과</span>`; $('pIn').placeholder='학과 이름을 검색해요'; }
   $('pFoot').innerHTML=`<span>${g}군에 지원할 수 있는 곳만 보여줘요</span>`; mkRenderPicker();
