@@ -1225,6 +1225,19 @@ body[data-scr=mock] #sky,body[data-scr=mres] #sky,body[data-scr=mfin]:not([data-
 .lg.ewha,.lg.skku{height:clamp(4.8rem,min(17vh,12.4vw),15rem)}
 .grow{transform:translateX(7vw)}
 .ititle{font-size:clamp(2.6rem,min(15vh,8.3vw),10.6rem)}
+
+/* ===== 점수 막대 끌어서 바꾸기 + 1단계 안내문 제거(필적확인란을 아래로) ===== */
+.ga .bar{touch-action:none;cursor:ew-resize;-webkit-user-select:none;user-select:none}
+.ga .bar::after{content:"";position:absolute;left:-.5rem;right:-.5rem;top:-.95rem;bottom:-.95rem}
+.ga.drag .bar i,.ga.drag .bar u{transition:none}
+.ga.drag .bar u{transform:scale(1.35)}
+#form[data-step="1"] .notice{display:none}
+#form[data-step="1"] .pj{margin-bottom:.9rem}
+@media (max-height:800px){
+  #form[data-step="1"] .pj{min-height:4.7rem;padding:.35rem 1.6rem .4rem}
+  #form[data-step="1"] .pj .pjt{font-size:clamp(1.9rem,3.5vw,2.7rem)}
+  #form[data-step="1"] .pj .moon{width:2.1rem;height:2.1rem}
+}
 </style>
 </head>
 <body data-scr="intro" class="booting">
@@ -1256,6 +1269,7 @@ if(document.readyState==='complete') ready(); else window.addEventListener('load
 setTimeout(hide,7000);
 function fonts(){ try{ document.querySelectorAll('link[rel=stylesheet][media=print]').forEach(function(l){ l.media='all'; }); }catch(e){} }
 fonts(); setTimeout(fonts,300); setTimeout(fonts,1500); window.addEventListener('load',fonts);
+if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){ window.addEventListener('load',function(){ try{ navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){} }); }
 })();</script>
 
 
@@ -2621,7 +2635,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795749310'; let updPending=false;
+const BUILD='1795750458'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2669,6 +2683,20 @@ function buildScoreCards(){
     inp.addEventListener('keydown',e=>{ if(e.key==='Enter') inp.blur(); });
   }
   $('sgrid').addEventListener('click',e=>{ const b=e.target.closest('.st'); if(!b) return; stepScore(b.dataset.k,parseInt(b.dataset.d,10)); });
+  initBarDrag();
+}
+/* 점수 아래 막대를 손가락으로 끌어서 점수 바꾸기 (국어·수학·통합사회·통합과학) */
+function initBarDrag(){
+  const g=$('sgrid'); let drag=null, raf=0, pend=null;
+  const cand={};
+  const valsFor=k=>cand[k]||(cand[k]=(()=>{ const r=RULE[k], o=[]; for(let x=0;x<=r.max+1e-9;x=R2(x+r.step)) if(isValid(k,x)) o.push(x); return o; })());
+  const pick=(k,f)=>{ const m=EXAMS[S.exam][k], tp=50+50*f; let best=null, bd=1e9; for(const v of valsFor(k)){ const d=Math.abs(pctFromZ(m.f(v))-tp); if(d<=bd+1e-9){ bd=d; best=v; } } return best; };
+  const flush=()=>{ raf=0; if(!pend) return; const {k,v}=pend; pend=null; S.raw[k]=String(v); $('in-'+k).value=S.raw[k]; save(); renderScores(); };
+  const apply=e=>{ if(!drag) return; const r=drag.bar.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(e.clientX-r.left)/Math.max(1,r.width))); const v=pick(drag.k,f); if(v===null||String(v)===S.raw[drag.k]) return; pend={k:drag.k,v}; if(!raf) raf=requestAnimationFrame(flush); };
+  g.addEventListener('pointerdown',e=>{ const bar=e.target.closest('.ga .bar'); if(!bar||!S.exam) return; const ga=bar.closest('.ga'); drag={k:ga.id.slice(3),bar,ga}; ga.classList.add('drag'); try{ bar.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); apply(e); });
+  g.addEventListener('pointermove',e=>{ if(drag) apply(e); });
+  const end=()=>{ if(!drag) return; drag.ga.classList.remove('drag'); drag=null; };
+  g.addEventListener('pointerup',end); g.addEventListener('pointercancel',end);
 }
 
 /* ============ 레이더 ============ */
