@@ -27,7 +27,7 @@
 <title>대학 어디가?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gasoek+One&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&family=Nanum+Myeongjo:wght@700;800&family=Nanum+Pen+Script&family=Gaegu:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gasoek+One&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&family=Nanum+Myeongjo:wght@700;800&family=Nanum+Pen+Script&family=Gaegu:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
 <style>
 :root{
@@ -1194,13 +1194,17 @@ body[data-scr=mock] #sky,body[data-scr=mres] #sky,body[data-scr=mfin]:not([data-
 @keyframes tipglow{0%,100%{box-shadow:0 0 1.2rem rgba(255,210,90,.3),inset 0 0 1rem rgba(255,230,140,.1)}50%{box-shadow:0 0 2.4rem rgba(255,210,90,.7),inset 0 0 1.2rem rgba(255,230,140,.2)}}
 .howto{margin-top:.9rem!important;background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,.1))!important;border-color:rgba(255,230,140,.9)!important;font-size:1.12rem!important;padding:.65rem 1.7rem!important}
 
-/* ===== 시작화면 : 제목·시작하기를 화면 정중앙으로 (좌우 영역 폭을 같게) ===== */
+/* ===== 시작화면 : 제목·시작하기 정중앙 + 로고는 각자 색 칸 안에서 최대한 크게 ===== */
 .istage{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
-.icol.L,.icol.R{transform:none;justify-self:center}
-.icol.L{gap:.4rem .6rem}
-.lg.snu,.lg.yon,.lg.kaist{height:clamp(5rem,min(25vh,11.4vw),17rem)}
-.lg.kor,.lg.post{height:clamp(6rem,min(29vh,14vw),20rem)}
-.ititle{font-size:clamp(2.6rem,min(14vh,7.7vw),9.6rem)}
+.icol.L,.icol.R{transform:none}
+.icol.L{justify-self:start;margin-left:2.6vw;gap:.5rem .8vw}
+.icol.R{justify-self:end;margin-right:5.4vw;gap:1.2vw}
+.lg.snu,.lg.yon,.lg.kaist{height:clamp(5rem,min(24vh,13.6vw),19rem)}
+.lg.kor{height:clamp(6rem,min(30vh,17.6vw),23rem)}
+.lg.post{height:clamp(6rem,min(28vh,15vw),21rem)}
+.lg.ewha,.lg.skku{height:clamp(4.8rem,min(17vh,12.4vw),15rem)}
+.grow{transform:translateX(7vw)}
+.ititle{font-size:clamp(2.6rem,min(15vh,8.3vw),10.6rem)}
 </style>
 </head>
 <body data-scr="intro" class="booting">
@@ -1225,6 +1229,8 @@ function hide(){ if(done) return; done=true; alive=false; clearInterval(t1); cle
 function ready(){ setTimeout(hide,Math.max(0,2000-(Date.now()-t0))); }
 if(document.readyState==='complete') ready(); else window.addEventListener('load',ready);
 setTimeout(hide,7000);
+function fonts(){ try{ document.querySelectorAll('link[rel=stylesheet][media=print]').forEach(function(l){ l.media='all'; }); }catch(e){} }
+fonts(); setTimeout(fonts,300); setTimeout(fonts,1500); window.addEventListener('load',fonts);
 })();</script>
 
 
@@ -2590,7 +2596,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795746779'; let updPending=false;
+const BUILD='1795748579'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
