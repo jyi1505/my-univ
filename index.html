@@ -2516,7 +2516,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795743912'; let updPending=false;
+const BUILD='1795744680'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
@@ -2656,7 +2656,7 @@ function renderNotice(){
   if(step==='1'){ $('notice').innerHTML=`<span><b>${esc(E.label)}</b> · ${esc(E.note)} 표에 없는 점수의 표점·백분위는 등급컷 사이를 이어서 추정한 값이에요. ${STAGE_NAME[E.stage]} 시험이라 확률은 조금 넓게 봐요.</span>`; return; }
   const u=S.univ?UBY[S.univ]:null;
   if(S.man) $('notice').innerHTML=`<span>직접 입력한 컷으로 계산해요. 컷은 작년 합격자 <b>국수탐 평균 백분위 70%컷</b>을 넣어요.</span>`;
-  else if(u) $('notice').innerHTML=`<span><b>${esc(u.n)}</b> · 컷은 2026학년도 합격자 국수탐 평균 백분위 70%컷${(u.src==='e'||(S.dept&&(u.d.find(x=>x[0]===S.dept)||[])[3]==='e'))?' <b>(사이트 자체 추정치)</b>':''}이에요. ${esc(u.note||'')}${ruralLine(u.id,S.dept)}</span>`;
+  else if(u) $('notice').innerHTML=`<span><b>${esc(u.n)}</b> · 컷은 2026학년도 합격자 국수탐 평균 백분위 70%컷이에요. ${esc(u.note||'')}${ruralLine(u.id,S.dept)}</span>`;
   else $('notice').innerHTML=`<span>오른쪽 <b>대학</b> 칸을 눌러 대학을 골라요. 자료에 없는 대학은 목록 아래 <b>컷 직접 입력</b>을 쓰면 돼요.</span>`;
 }
 
@@ -2729,7 +2729,7 @@ function pickDept(name){ S.dept=name; save(); renderBoxes(); closePicker(); }
 let PM=null;
 function openPicker(mode){
   if(mode==='mu') return mkOpenPicker(mode);
-  if(mode==='d'&&!S.univ) return; PM=mode; $('picker').classList.add('on'); $('pIn').value='';
+  if(mode==='d'&&!S.univ) return; PM=mode; $('picker').classList.add('on'); $('pIn').value=''; $('pList').scrollTop=0;
   $('pTitle').innerHTML=mode==='u'?'대학 선택':`<span style="display:inline-flex;align-items:center;gap:.8rem">${badge(S.univ,'s',UBY[S.univ].n)}${esc(UBY[S.univ].n)} · 학과 선택</span>`;
   $('pIn').placeholder=mode==='u'?'대학 이름을 검색해요':'학과 이름을 검색해요';
   renderPicker();
@@ -2742,15 +2742,15 @@ function openPicker(mode){
 function closePicker(){ $('picker').classList.remove('on'); PM=null; try{ document.activeElement&&document.activeElement.blur(); }catch(e){} }
 function renderPicker(){
   if(PM==='mu'||PM==='md') return mkRenderPicker();
-  const q=$('pIn').value; const L=$('pList');
+  const q=$('pIn').value; const L=$('pList'); L.scrollTop=0;
   if(PM==='u'){
     const list=findUniv(q);
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}"에 맞는 대학이 자료에 없어요.<br>아래 <b>컷 직접 입력</b>으로 계산할 수 있어요.</div>`; return; }
-    L.innerHTML=list.map(u=>{ const mt=uMeta(u.id); return `<button class="pr${S.univ===u.id?' sel':''}" data-u="${u.id}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}">${badge(u.id,'m',u.n)}<span class="n">${esc(u.n)}<small>${u.d.length>3?u.d.length+'개 모집단위':'요약값만 있어요'}${mt.lines&&mt.lines[0]&&META[u.id]?`<i>${esc(mt.lines[0])}</i>`:''}</small></span>${u.src==='e'?'<span class="tg e">추정</span>':''}</button>`}).join('');
+    L.innerHTML=list.map(u=>{ const mt=uMeta(u.id); return `<button class="pr${S.univ===u.id?' sel':''}" data-u="${u.id}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}">${badge(u.id,'m',u.n)}<span class="n">${esc(u.n)}<small>${u.d.length>3?u.d.length+'개 모집단위':'요약값만 있어요'}${mt.lines&&mt.lines[0]&&META[u.id]?`<i>${esc(mt.lines[0])}</i>`:''}</small></span></button>`}).join('');
   } else if(PM==='d'){
     const U=UBY[S.univ]; const list=U.d.filter(d=>match(q,[d[0]]));
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}" 학과는 자료에 없어요.<br>이 대학이 목록에 없는 학과라면 <b>컷 직접 입력</b>을 써 보세요.</div>`; return; }
-    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr${S.dept===d[0]?' sel':''}" data-d="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${(U.src==='e'||d[3]==='e')?'<span class="tg e">추정</span>':''}${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:''}</button>`).join('');
+    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr${S.dept===d[0]?' sel':''}" data-d="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:''}</button>`).join('');
   }
 }
 function confirmManual(){
@@ -2838,7 +2838,7 @@ function buildAdvice(c,t){
     <li>이 시험은 <b>${STAGE_NAME[st]}</b> 학평이라 앞으로 성적이 크게 변해요. 그래서 확률 곡선을 일부러 넓게(고1 > 고2 > 고3 순) 잡았어요.</li>
     <li>컷은 <b>2026학년도</b> 합격자 기준이고, 09년생이 치르는 <b>2028학년도 통합형 수능</b>은 과목 구조와 선택 인원이 달라 컷이 움직일 수 있어요.</li>
     <li>표준점수·백분위는 등급컷 표 사이를 이어 추정한 값이라 실제 성적표와 몇 점 차이가 날 수 있어요.</li>
-    ${t.src==='e'?'<li>이 대학의 컷은 사이트 <b>자체 추정치</b>예요. 실제와 차이가 클 수 있으니 방향만 참고해요.</li>':''}</ul></div>`;
+    </ul></div>`;
   return diag+tbl+prio+cmb+study+trust;
 }
 let simTab='other';
@@ -2852,7 +2852,7 @@ function renderResult(){
   $('rbody').innerHTML=`<section class="hero glass" style="--hc:${bc}">
      ${t.id&&WMS.has(t.id)?`<div class="hm">${wmImg(t.id)}</div>`:''}
      <div class="hrb"><i>✦</i>나의 합격 예측<i>✦</i></div>
-     <div class="h1">${badge(t.id,'l',t.u)}<div><div class="u">${esc(t.u)}</div><div class="d">${esc(t.d)}</div><div class="g">${t.gun&&t.gun!=='-'?t.gun+'군 · ':''}컷 ${cutTxt(t.cut)}${t.rural&&t.rural.st==='ok'?` (일반 ${cutTxt(t.cut0)} − ${cutTxt(t.rural.off)})`:''}${t.src==='e'?' (추정)':t.src==='m'?' (직접 입력)':''}</div>${rtag(t)}</div></div>
+     <div class="h1">${badge(t.id,'l',t.u)}<div><div class="u">${esc(t.u)}</div><div class="d">${esc(t.d)}</div><div class="g">${t.gun&&t.gun!=='-'?t.gun+'군 · ':''}컷 ${cutTxt(t.cut)}${t.rural&&t.rural.st==='ok'?` (일반 ${cutTxt(t.cut0)} − ${cutTxt(t.rural.off)})`:''}${t.src==='m'?' (직접 입력)':''}</div>${rtag(t)}</div></div>
      <div class="pc"><b>${f1(p)}</b><i>%</i><span class="bn">${bn}</span></div>
      <div class="hbub">${({안정:"여유 있어요! 지금 점수만 잘 지켜요",적정:"좋은 위치예요, 조금만 더 올려 봐요",소신:"올릴 여지가 충분해요, 해볼 만해요",도전:"도전해 볼 만해요, 계획을 세워 봐요",위험:"아직 거리가 있어요, 천천히 올려 가요"})[bn]}</div>
      <div class="batt"><div class="cells">${cells}</div><span class="cap">${n.toFixed(1)} / 5칸</span></div>
@@ -2957,25 +2957,25 @@ function renderMock(){
   const cards=GUNS.map(g=>{ const s=MK.slots[g];
     if(!s) return `<div class="mk-slot glass empty" data-g="${g}"><span class="mk-gun">${g}군</span><div class="mk-plus">＋</div><div class="mk-hint">대학 · 학과 고르기</div></div>`;
     const U=UBY[s.id], p=mkProb(s)*100, [bn,bc]=band(p), mt=uMeta(s.id);
-    return `<div class="mk-slot glass" data-g="${g}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}"><span class="mk-gun">${g}군</span><button class="mk-x" data-clear="${g}" aria-label="비우기">✕</button>${badge(s.id,'l',U.n)}<div class="mk-un">${esc(U.n)}</div><div class="mk-dn">${esc(s.dept)}</div><div class="mk-pp" style="--bc:${bc}"><b>${f1(p)}%</b><i>${bn}</i></div>${(U.src==='e'||d[3]==='e')?'<span class="tg e">추정</span>':''}</div>`; }).join('');
+    return `<div class="mk-slot glass" data-g="${g}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}"><span class="mk-gun">${g}군</span><button class="mk-x" data-clear="${g}" aria-label="비우기">✕</button>${badge(s.id,'l',U.n)}<div class="mk-un">${esc(U.n)}</div><div class="mk-dn">${esc(s.dept)}</div><div class="mk-pp" style="--bc:${bc}"><b>${f1(p)}%</b><i>${bn}</i></div></div>`; }).join('');
   $('mkBody').innerHTML=`<div class="mk-head"><div class="mk-tag">🎯 모의지원</div><h1>원서, 어디에 넣어 볼까요?</h1><p>가·나·다군에 한 곳씩 지원해 봐요. 내 예측 점수 <b>${f1(c.eff)}</b> 기준으로 발표가 나는데, 확률이 낮아도 <b>우주상향</b>이 붙을 수 있고 높아도 떨어질 수 있어요.</p></div>
    <div class="mk-slots">${cards}</div>
    <div class="mk-act"><button class="go" id="mkSubmit" ${n?'':'disabled'}>원서 접수하고 발표 보기 (${n}곳)</button></div>`;
 }
 function mkOpenPicker(mode){
-  PM=mode; $('picker').classList.add('on'); $('pIn').value=''; const g=MK.pick;
+  PM=mode; $('picker').classList.add('on'); $('pIn').value=''; $('pList').scrollTop=0; const g=MK.pick;
   if(mode==='mu'){ $('pTitle').textContent=`${g}군 · 대학 선택`; $('pIn').placeholder='대학 이름을 검색해요'; }
   else { const U=UBY[MK.tmpU]; $('pTitle').innerHTML=`<span style="display:inline-flex;align-items:center;gap:.8rem">${badge(U.id,'s',U.n)}${esc(U.n)} · ${g}군 학과</span>`; $('pIn').placeholder='학과 이름을 검색해요'; }
   $('pFoot').innerHTML=`<span>${g}군에 지원할 수 있는 곳만 보여줘요</span>`; mkRenderPicker();
 }
 function mkRenderPicker(){
-  const q=$('pIn').value, L=$('pList'), g=MK.pick;
+  const q=$('pIn').value, L=$('pList'), g=MK.pick; L.scrollTop=0;
   if(PM==='mu'){ const list=findUniv(q).filter(u=>u.d.some(d=>mkOkGun(d,g)));
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}"에 맞는 대학이 없어요.</div>`; return; }
-    L.innerHTML=list.map(u=>{ const mt=uMeta(u.id); const k=u.d.filter(d=>mkOkGun(d,g)).length; return `<button class="pr" data-mu="${u.id}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}">${badge(u.id,'m',u.n)}<span class="n">${esc(u.n)}<small>${g}군 ${k}개 모집단위</small></span>${u.src==='e'?'<span class="tg e">추정</span>':''}</button>`; }).join('');
+    L.innerHTML=list.map(u=>{ const mt=uMeta(u.id); const k=u.d.filter(d=>mkOkGun(d,g)).length; return `<button class="pr" data-mu="${u.id}" style="--rc:${mt.c[0]};--rt:${mt.c[2]}">${badge(u.id,'m',u.n)}<span class="n">${esc(u.n)}<small>${g}군 ${k}개 모집단위</small></span></button>`; }).join('');
   } else { const U=UBY[MK.tmpU]; const list=U.d.filter(d=>mkOkGun(d,g)&&match(q,[d[0]]));
     if(!list.length){ L.innerHTML=`<div class="pnone">"${esc(q)}" 학과가 없어요.</div>`; return; }
-    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr" data-md="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${(U.src==='e'||d[3]==='e')?'<span class="tg e">추정</span>':''}${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:'<span class="gn">군 외</span>'}</button>`).join(''); }
+    L.innerHTML=list.slice(0,160).map(d=>`<button class="pr" data-md="${esc(d[0])}"><span class="n">${esc(d[0])}</span>${d[2]&&d[2]!=='-'?`<span class="gn">${d[2]}군</span>`:'<span class="gn">군 외</span>'}</button>`).join(''); }
 }
 function mkSubmit(){
   const c=compute(); if(!c.ok) return;
