@@ -1269,7 +1269,9 @@ if(document.readyState==='complete') ready(); else window.addEventListener('load
 setTimeout(hide,7000);
 function fonts(){ try{ document.querySelectorAll('link[rel=stylesheet][media=print]').forEach(function(l){ l.media='all'; }); }catch(e){} }
 fonts(); setTimeout(fonts,300); setTimeout(fonts,1500); window.addEventListener('load',fonts);
-if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){ window.addEventListener('load',function(){ try{ navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){} }); }
+if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){ window.addEventListener('load',function(){ try{ navigator.serviceWorker.register('sw.js').catch(function(){});
+    function warm(){ try{ performance.getEntriesByType('resource').forEach(function(r){ var u=r.name; if(!/fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.jsdelivr\.net/.test(u)) return; fetch(u,{mode:/\.(woff2?|ttf|otf)(\?|$)/.test(u)?'cors':'no-cors'}).catch(function(){}); }); }catch(e){} }
+    navigator.serviceWorker.ready.then(function(){ setTimeout(warm,2500); setTimeout(warm,9000); }).catch(function(){}); }catch(e){} }); }
 })();</script>
 
 
@@ -2635,7 +2637,7 @@ function ruralInfoHTML(){
 const ORDER=['intro','form','loading','result','mock','mres','mfin']; let scr='intro';
 function replayIntro(){ document.querySelectorAll('#intro *').forEach(e=>{ e.style.animation='none'; void e.offsetHeight; e.style.animation=''; }); }
 /* ===== 새 버전 자동 확인 (같은 주소에 새로 올리면 앱이 알아서 받아요) ===== */
-const BUILD='1795750458'; let updPending=false;
+const BUILD='1795752227'; let updPending=false;
 async function checkUpdate(){
   if(BUILD==='__BUILD__'||!/^https?:/.test(location.protocol)) return;
   try{ const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}); const t=await r.text(); const m=t.match(/const BUILD='([^']+)'/);
